@@ -77,3 +77,4 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 // As an example of how to pass message body to the handler, you can use the following curl command:
 // curl -X POST -d 'This is the body' 'http://localhost:8080?first=1&second='
 // Might be a good idea to use the body as JSON to request multiple exchange rates at once
+// https://www.digitalocean.com/community/tutorials/how-to-make-an-http-server-in-go
