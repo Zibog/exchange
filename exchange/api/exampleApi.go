@@ -11,7 +11,7 @@ import (
 
 const pokeapiURL = "http://pokeapi.co/api/v2/pokedex/kanto/"
 
-func CallPokeapi() {
+func CallPokeapi() Response {
 	response, err := http.Get(pokeapiURL)
 
 	if err != nil {
@@ -27,12 +27,14 @@ func CallPokeapi() {
 	var responseObject Response
 	json.Unmarshal(responseData, &responseObject)
 
-	fmt.Println(responseObject.Name)
-	fmt.Println(len(responseObject.Pokemon))
+	// fmt.Println(responseObject.Name)
+	// fmt.Println(len(responseObject.Pokemon))
 
-	for _, pokemon := range responseObject.Pokemon {
-		fmt.Println(pokemon.Species.Name)
-	}
+	// for _, pokemon := range responseObject.Pokemon {
+	// 	fmt.Println(pokemon.Species.Name)
+	// }
+
+	return responseObject
 }
 
 // A Response struct to map the Entire Response

@@ -101,6 +101,5 @@ func getRates(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("body=\n%s\n", body)
 
 	response := api.CallFixerIo()
-
 	io.WriteString(w, fmt.Sprintf("%v\n", response))
 }
