@@ -16,7 +16,10 @@ import (
 const keyServerAddr = "serverAddr"
 
 func main() {
-	api.CallFixerIo()
+	response := api.CallFixerIo()
+	fmt.Println(response)
+
+	startServer()
 }
 
 func startServer() {
@@ -25,6 +28,7 @@ func startServer() {
 
 	mux.HandleFunc("/", getRoot)
 	mux.HandleFunc("/hello", getHello)
+	mux.HandleFunc("/rates", getRates)
 
 	ctx := context.Background()
 	server := &http.Server{
@@ -83,3 +87,20 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 // curl -X POST -d 'This is the body' 'http://localhost:8080?first=1&second='
 // Might be a good idea to use the body as JSON to request multiple exchange rates at once
 // https://www.digitalocean.com/community/tutorials/how-to-make-an-http-server-in-go
+
+func getRates(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	fmt.Printf("%s: got /rates request\n", ctx.Value(keyServerAddr))
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		fmt.Printf("could not read body: %s\n", err)
+	}
+
+	fmt.Printf("body=\n%s\n", body)
+
+	response := api.CallFixerIo()
+
+	io.WriteString(w, fmt.Sprintf("%v\n", response))
+}

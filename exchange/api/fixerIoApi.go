@@ -10,7 +10,7 @@ import (
 const apiKey = "ffe2b16e14d4d3c5a0214a16aa8a0f79"
 const fixerIoURL = "http://data.fixer.io/api/latest?access_key=" + apiKey
 
-func CallFixerIo() {
+func CallFixerIo() FixerResponse {
 	// response, err := http.Get(fixerIoURL)
 	//
 	// if err != nil {
@@ -27,8 +27,11 @@ func CallFixerIo() {
 	json.Unmarshal([]byte(input), &responseObject)
 
 	fmt.Println(responseObject)
+
+	return responseObject
 }
 
+// TODO: unite both responses
 type FixerResponse struct {
 	Success   bool                `json:"success"`
 	Timestamp timestamp.Timestamp `json:"timestamp"`
