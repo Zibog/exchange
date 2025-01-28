@@ -16,8 +16,7 @@ import (
 const keyServerAddr = "serverAddr"
 
 func main() {
-	api.CallPokeapi()
-	startServer()
+	api.CallFixerIo()
 }
 
 func startServer() {
