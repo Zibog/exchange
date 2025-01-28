@@ -64,7 +64,14 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	fmt.Printf("%s: got /hello request\n", ctx.Value(keyServerAddr))
-	io.WriteString(w, "Hello, HTTP!\n")
+
+	myName := r.PostFormValue("myName")
+	if myName == "" {
+		w.Header().Set("x-missing-field", "myName")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	io.WriteString(w, fmt.Sprintf("Hello, %s!\n", myName))
 }
 
 // As an example of how to pass message body to the handler, you can use the following curl command:
