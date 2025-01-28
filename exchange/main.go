@@ -8,12 +8,19 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+
+	"github.com/dsidak/exchange/exchange/api"
 )
 
 // key for the HTTP server’s address value in the context
 const keyServerAddr = "serverAddr"
 
 func main() {
+	api.CallPokeapi()
+	startServer()
+}
+
+func startServer() {
 	// server multiplexer and http.Handler implementation
 	mux := http.NewServeMux()
 
@@ -56,7 +63,6 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 		hasSecond, second,
 		body)
 
-	fmt.Printf("%s: got / request\n", ctx.Value(keyServerAddr))
 	io.WriteString(w, "This is my website!\n")
 }
 

@@ -1,4 +1,4 @@
-package restApiCall
+package api
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 
 const pokeapiURL = "http://pokeapi.co/api/v2/pokedex/kanto/"
 
-func callPokeapi() {
+func CallPokeapi() {
 	response, err := http.Get(pokeapiURL)
 
 	if err != nil {
