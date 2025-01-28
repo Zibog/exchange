@@ -8,14 +8,18 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/dsidak/exchange/exchange/api"
+	"github.com/joho/godotenv"
 )
 
 // key for the HTTP server’s address value in the context
 const keyServerAddr = "serverAddr"
 
 func main() {
+	loadEnv()
+
 	response := api.CallFixerIo()
 	fmt.Println(response)
 
@@ -102,4 +106,13 @@ func getRates(w http.ResponseWriter, r *http.Request) {
 
 	response := api.CallFixerIo()
 	io.WriteString(w, fmt.Sprintf("%v\n", response))
+}
+
+func loadEnv() {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Printf("could not load .env file: %s\n", err)
+	}
+
+	fmt.Printf("godotenv: %s = %s \n", "FIXER_IO_API_KEY", os.Getenv("FIXER_IO_API_KEY"))
 }

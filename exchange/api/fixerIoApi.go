@@ -3,12 +3,13 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/augurysys/timestamp"
 )
 
-const apiKey = "ffe2b16e14d4d3c5a0214a16aa8a0f79"
-const fixerIoURL = "http://data.fixer.io/api/latest?access_key=" + apiKey
+var apiKey = os.Getenv("FIXER_IO_API_KEY")
+var fixerIoURL = "http://data.fixer.io/api/latest?access_key=" + apiKey
 
 func CallFixerIo() FixerResponse {
 	// response, err := http.Get(fixerIoURL)
