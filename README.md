@@ -1,0 +1,1 @@
+You need to obtain an access key from [Fixer.io](https://fixer.io/) and put it in .env file

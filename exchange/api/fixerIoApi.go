@@ -3,61 +3,56 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
-
-	"github.com/augurysys/timestamp"
 )
 
 var apiKey = os.Getenv("FIXER_IO_API_KEY")
 var fixerIoURL = "http://data.fixer.io/api/latest?access_key=" + apiKey
 
 func CallFixerIo() FixerResponse {
-	// response, err := http.Get(fixerIoURL)
-	//
-	// if err != nil {
-	// 	fmt.Print(err.Error())
-	// 	os.Exit(1)
-	// }
-	//
-	// responseData, err := ioutil.ReadAll(response.Body)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	response, err := http.Get(fixerIoURL)
 
+	if err != nil {
+		fmt.Print(err.Error())
+		os.Exit(1)
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return UnmarshalFixerResponse(responseData)
+}
+
+func UnmarshalFixerResponse(data []byte) FixerResponse {
 	var responseObject FixerResponse
-	json.Unmarshal([]byte(input), &responseObject)
-
-	fmt.Println(responseObject)
+	json.Unmarshal(data, &responseObject)
 
 	return responseObject
 }
 
 // TODO: unite both responses
 type FixerResponse struct {
-	Success   bool                `json:"success"`
-	Timestamp timestamp.Timestamp `json:"timestamp"`
-	Base      string              `json:"base"`
-	Date      string              `json:"date"`
-	Rates     map[string]float64  `json:"rates"`
+	Success   bool               `json:"success"`
+	Timestamp int64              `json:"timestamp,omitempty"`
+	Base      string             `json:"base,omitempty"`
+	Date      string             `json:"date,omitempty"`
+	Rates     map[string]float64 `json:"rates,omitempty"`
+	Error     FixerError         `json:"error,omitempty"`
+	Symbols   map[string]string  `json:"symbols,omitempty"`
+}
+
+type FixerError struct {
+	Code int    `json:"code"`
+	Type string `json:"type"`
+	Info string `json:"info"`
 }
 
 func (fr FixerResponse) String() string {
-	return fmt.Sprintf("Success: %t\nTimestamp: %s\nBase: %s\nDate: %s\nRates: %v\n",
+	return fmt.Sprintf("Success: %t\nTimestamp: %v\nBase: %s\nDate: %s\nRates: %v\n",
 		fr.Success, fr.Timestamp, fr.Base, fr.Date, fr.Rates)
 }
-
-const input = `{
-    "success": true,
-    "timestamp": 1519296206,
-    "base": "EUR",
-    "date": "2025-01-28",
-    "rates": {
-        "AUD": 1.566015,
-        "CAD": 1.560132,
-        "CHF": 1.154727,
-        "CNY": 7.827874,
-        "GBP": 0.882047,
-        "JPY": 132.360679,
-        "USD": 1.23396
-    }
-}`

@@ -1,11 +1,44 @@
 package api
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestRequestLatestRates(t *testing.T) {
-	response := CallFixerIo()
-	if response.Success != true {
-		t.Errorf("Expected success to be true, but got %t", response.Success)
+	response := UnmarshalFixerResponse([]byte(latest))
+	AssertEquals(t, true, response.Success)
+	AssertEquals(t, int64(1519296206), response.Timestamp)
+	AssertEquals(t, "EUR", response.Base)
+	AssertEquals(t, "2025-01-28", response.Date)
+	AssertEquals(t, 7, len(response.Rates))
+
+	AssertEquals(t, FixerError{}, response.Error)
+	AssertEquals(t, 0, len(response.Symbols))
+}
+
+func TestErrorResponse(t *testing.T) {
+	response := UnmarshalFixerResponse([]byte(error))
+	AssertEquals(t, false, response.Success)
+	AssertEquals(t, 104, response.Error.Code)
+	AssertEquals(t, "Your monthly API request volume has been reached. Please upgrade your plan.", response.Error.Info)
+
+	AssertEquals(t, 0, len(response.Rates))
+	AssertEquals(t, 0, len(response.Symbols))
+}
+
+// generate test for symbols response
+func TestRequestSymbols(t *testing.T) {
+	response := UnmarshalFixerResponse([]byte(symbols))
+	AssertEquals(t, true, response.Success)
+	AssertEquals(t, 4, len(response.Symbols))
+
+	AssertEquals(t, 0, len(response.Rates))
+	AssertEquals(t, FixerError{}, response.Error)
+}
+
+func AssertEquals(t *testing.T, expected, actual interface{}) {
+	if expected != actual {
+		t.Errorf("Expected %v, but got %v", expected, actual)
 	}
 }
 
