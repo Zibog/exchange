@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestRequestLatestRates(t *testing.T) {
+func TestParseRequestLatestRates(t *testing.T) {
 	response := UnmarshalFixerResponse([]byte(latest))
 	AssertEquals(t, true, response.Success)
 	AssertEquals(t, int64(1519296206), response.Timestamp)
@@ -16,7 +16,7 @@ func TestRequestLatestRates(t *testing.T) {
 	AssertEquals(t, 0, len(response.Symbols))
 }
 
-func TestErrorResponse(t *testing.T) {
+func TestParseErrorResponse(t *testing.T) {
 	response := UnmarshalFixerResponse([]byte(error))
 	AssertEquals(t, false, response.Success)
 	AssertEquals(t, 104, response.Error.Code)
@@ -26,14 +26,22 @@ func TestErrorResponse(t *testing.T) {
 	AssertEquals(t, 0, len(response.Symbols))
 }
 
-// generate test for symbols response
-func TestRequestSymbols(t *testing.T) {
+func TestParseRequestSymbols(t *testing.T) {
 	response := UnmarshalFixerResponse([]byte(symbols))
 	AssertEquals(t, true, response.Success)
 	AssertEquals(t, 4, len(response.Symbols))
 
 	AssertEquals(t, 0, len(response.Rates))
 	AssertEquals(t, FixerError{}, response.Error)
+}
+
+func TestToUrl(t *testing.T) {
+	url := toUrl("http://data.fixer.io", Latest, "MY_API_KEY")
+	AssertEquals(t, "http://data.fixer.io/latest?access_key=MY_API_KEY", url)
+}
+
+func TestToUrlWithSymbols(t *testing.T) {
+	// TODO: add tests for symbols
 }
 
 func AssertEquals(t *testing.T, expected, actual interface{}) {

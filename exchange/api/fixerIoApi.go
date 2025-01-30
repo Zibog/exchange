@@ -7,13 +7,22 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+)
+
+type Endpoint string
+
+const (
+	Latest Endpoint = "/latest"
 )
 
 var apiKey = os.Getenv("FIXER_IO_API_KEY")
-var fixerIoURL = "http://data.fixer.io/api/latest?access_key=" + apiKey
+var address = os.Getenv("FIXER_IO_ADDRESS")
 
-func CallFixerIo() FixerResponse {
-	response, err := http.Get(fixerIoURL)
+// TODO: pass symbols as argument. Maybe in smth like context
+func CallFixerIo(endpoint Endpoint) FixerResponse {
+	url := toUrl(address, endpoint, apiKey)
+	response, err := http.Get(url)
 
 	if err != nil {
 		fmt.Print(err.Error())
@@ -55,4 +64,22 @@ type FixerError struct {
 func (fr FixerResponse) String() string {
 	return fmt.Sprintf("Success: %t\nTimestamp: %v\nBase: %s\nDate: %s\nRates: %v\n",
 		fr.Success, fr.Timestamp, fr.Base, fr.Date, fr.Rates)
+}
+
+func (fe FixerError) String() string {
+	return fmt.Sprintf("Code: %d\nType: %s\nInfo: %s\n",
+		fe.Code, fe.Type, fe.Info)
+}
+
+func toUrl(address string, endpoint Endpoint, apiKey string) string {
+	// TODO: add validation endpoint<=>symbols
+	return address + string(endpoint) + "?access_key=" + apiKey
+}
+
+func toUrlWithSymbols(address string, endpoint Endpoint, apiKey string, symbols []string) string {
+	url := toUrl(address, endpoint, apiKey)
+	if len(symbols) != 0 {
+		url += "&symbols=" + strings.Join(symbols, ",")
+	}
+	return url
 }

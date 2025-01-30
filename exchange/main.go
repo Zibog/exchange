@@ -20,9 +20,6 @@ const keyServerAddr = "serverAddr"
 func main() {
 	loadEnv()
 
-	response := api.CallFixerIo()
-	fmt.Println(response)
-
 	startServer()
 }
 
@@ -32,7 +29,7 @@ func startServer() {
 
 	mux.HandleFunc("/", getRoot)
 	mux.HandleFunc("/hello", getHello)
-	mux.HandleFunc("/rates", getRates)
+	mux.HandleFunc("/latest", getLatestRates)
 
 	ctx := context.Background()
 	server := &http.Server{
@@ -92,10 +89,10 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 // Might be a good idea to use the body as JSON to request multiple exchange rates at once
 // https://www.digitalocean.com/community/tutorials/how-to-make-an-http-server-in-go
 
-func getRates(w http.ResponseWriter, r *http.Request) {
+func getLatestRates(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	fmt.Printf("%s: got /rates request\n", ctx.Value(keyServerAddr))
+	fmt.Printf("%s: got /latest request\n", ctx.Value(keyServerAddr))
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -104,7 +101,7 @@ func getRates(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("body=\n%s\n", body)
 
-	response := api.CallFixerIo()
+	response := api.CallFixerIo(api.Latest)
 	io.WriteString(w, fmt.Sprintf("%v\n", response))
 }
 
@@ -115,4 +112,5 @@ func loadEnv() {
 	}
 
 	fmt.Printf("godotenv: %s = %s \n", "FIXER_IO_API_KEY", os.Getenv("FIXER_IO_API_KEY"))
+	fmt.Printf("godotenv: %s = %s \n", "FIXER_IO_ADDRESS", os.Getenv("FIXER_IO_ADDRESS"))
 }
