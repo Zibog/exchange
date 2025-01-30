@@ -61,7 +61,7 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("could not read body: %s\n", err)
 	}
 
-	fmt.Printf("%s: got / request. first(%t)=%s, second(%t)=%s, body=\n%s\n",
+	fmt.Printf("%s: got / request. first(%t)=%s, second(%t)=%s\n body=%s\n",
 		ctx.Value(keyServerAddr),
 		hasFirst, first,
 		hasSecond, second,
