@@ -40,7 +40,7 @@ func TestToUrl(t *testing.T) {
 	AssertEquals(t, "http://data.fixer.io/latest?access_key=MY_API_KEY", url)
 }
 
-func TestToUrlWithSymbols(t *testing.T) {
+func TestAppendSymbols(t *testing.T) {
 	// TODO: add tests for symbols
 }
 

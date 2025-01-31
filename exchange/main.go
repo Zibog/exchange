@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -30,6 +31,7 @@ func startServer() {
 	mux.HandleFunc("/", getRoot)
 	mux.HandleFunc("/hello", getHello)
 	mux.HandleFunc("/latest", getLatestRates)
+	mux.HandleFunc("/symbols", getSymbols)
 
 	ctx := context.Background()
 	server := &http.Server{
@@ -42,9 +44,9 @@ func startServer() {
 
 	err := server.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Printf("server is closed\n")
+		log.Printf("server is closed\n")
 	} else if err != nil {
-		fmt.Printf("error listening for server: %s\n", err)
+		log.Printf("error listening for server: %s\n", err)
 	}
 }
 
@@ -58,10 +60,10 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Printf("could not read body: %s\n", err)
+		log.Printf("could not read body: %s\n", err)
 	}
 
-	fmt.Printf("%s: got / request. first(%t)=%s, second(%t)=%s\n body=%s\n",
+	log.Printf("%s: got / request. first(%t)=%s, second(%t)=%s\n body=%s\n",
 		ctx.Value(keyServerAddr),
 		hasFirst, first,
 		hasSecond, second,
@@ -73,7 +75,7 @@ func getRoot(w http.ResponseWriter, r *http.Request) {
 func getHello(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	fmt.Printf("%s: got /hello request\n", ctx.Value(keyServerAddr))
+	log.Printf("%s: got /hello request\n", ctx.Value(keyServerAddr))
 
 	myName := r.PostFormValue("myName")
 	if myName == "" {
@@ -92,25 +94,41 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 func getLatestRates(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	fmt.Printf("%s: got /latest request\n", ctx.Value(keyServerAddr))
+	log.Printf("%s: got /latest request\n", ctx.Value(keyServerAddr))
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		fmt.Printf("could not read body: %s\n", err)
+		log.Printf("could not read body: %s\n", err)
 	}
 
-	fmt.Printf("body=\n%s\n", body)
+	log.Printf("body=\n%s\n", body)
 
 	response := api.CallFixerIo(api.Latest)
+	io.WriteString(w, fmt.Sprintf("%v\n", response))
+}
+
+func getSymbols(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	log.Printf("%s: got /latest request\n", ctx.Value(keyServerAddr))
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("could not read body: %s\n", err)
+	}
+
+	log.Printf("body=\n%s\n", body)
+
+	response := api.CallFixerIo(api.Symbols)
 	io.WriteString(w, fmt.Sprintf("%v\n", response))
 }
 
 func loadEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		fmt.Printf("could not load .env file: %s\n", err)
+		log.Printf("could not load .env file: %s\n", err)
 	}
 
-	fmt.Printf("godotenv: %s = %s \n", "FIXER_IO_API_KEY", os.Getenv("FIXER_IO_API_KEY"))
-	fmt.Printf("godotenv: %s = %s \n", "FIXER_IO_ADDRESS", os.Getenv("FIXER_IO_ADDRESS"))
+	log.Printf("godotenv: %s = %s \n", "FIXER_IO_API_KEY", os.Getenv("FIXER_IO_API_KEY"))
+	log.Printf("godotenv: %s = %s \n", "FIXER_IO_ADDRESS", os.Getenv("FIXER_IO_ADDRESS"))
 }

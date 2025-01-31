@@ -13,20 +13,20 @@ import (
 type Endpoint string
 
 const (
-	Latest Endpoint = "/latest"
+	Latest  Endpoint = "/latest"
+	Symbols Endpoint = "/symbols"
 )
 
 var apiKey = os.Getenv("FIXER_IO_API_KEY")
 var address = os.Getenv("FIXER_IO_ADDRESS")
 
-// TODO: pass symbols as argument. Maybe in smth like context
+// TODO: pass symbols as argument. And a callback? Maybe in smth like context
 func CallFixerIo(endpoint Endpoint) FixerResponse {
 	url := toUrl(address, endpoint, apiKey)
 	response, err := http.Get(url)
 
 	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
+		log.Fatal(err.Error())
 	}
 
 	responseData, err := ioutil.ReadAll(response.Body)
@@ -76,10 +76,16 @@ func toUrl(address string, endpoint Endpoint, apiKey string) string {
 	return address + string(endpoint) + "?access_key=" + apiKey
 }
 
-func toUrlWithSymbols(address string, endpoint Endpoint, apiKey string, symbols []string) string {
-	url := toUrl(address, endpoint, apiKey)
+func withSymbols(url string, symbols []string) string {
 	if len(symbols) != 0 {
 		url += "&symbols=" + strings.Join(symbols, ",")
+	}
+	return url
+}
+
+func withBase(url string, base string) string {
+	if base != "" {
+		url += "&base=" + base
 	}
 	return url
 }
