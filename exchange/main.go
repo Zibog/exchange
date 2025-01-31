@@ -103,7 +103,22 @@ func getLatestRates(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("body=\n%s\n", body)
 
-	response := api.CallFixerIo(api.Latest)
+	hasSymbols := r.URL.Query().Has("symbols")
+	symbols := r.URL.Query().Get("symbols")
+	hasBase := r.URL.Query().Has("base")
+	base := r.URL.Query().Get("base")
+
+	context := api.Context{
+		Endpoint: api.Latest,
+	}
+	if hasSymbols {
+		context.Symbols = symbols
+	}
+	if hasBase {
+		context.Base = base
+	}
+
+	response := api.CallFixerIo(context)
 	io.WriteString(w, fmt.Sprintf("%v\n", response))
 }
 
@@ -119,7 +134,11 @@ func getSymbols(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("body=\n%s\n", body)
 
-	response := api.CallFixerIo(api.Symbols)
+	context := api.Context{
+		Endpoint: api.Symbols,
+	}
+
+	response := api.CallFixerIo(context)
 	io.WriteString(w, fmt.Sprintf("%v\n", response))
 }
 

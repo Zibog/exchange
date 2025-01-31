@@ -21,8 +21,9 @@ var apiKey = os.Getenv("FIXER_IO_API_KEY")
 var address = os.Getenv("FIXER_IO_ADDRESS")
 
 // TODO: pass symbols as argument. And a callback? Maybe in smth like context
-func CallFixerIo(endpoint Endpoint) FixerResponse {
-	url := toUrl(address, endpoint, apiKey)
+func CallFixerIo(context Context) FixerResponse {
+	url := toUrl(address, context.Endpoint, apiKey)
+	url = decorateUrl(url, context)
 	response, err := http.Get(url)
 
 	if err != nil {
@@ -44,7 +45,6 @@ func UnmarshalFixerResponse(data []byte) FixerResponse {
 	return responseObject
 }
 
-// TODO: unite both responses
 type FixerResponse struct {
 	Success   bool               `json:"success"`
 	Timestamp int64              `json:"timestamp,omitempty"`
@@ -88,4 +88,16 @@ func withBase(url string, base string) string {
 		url += "&base=" + base
 	}
 	return url
+}
+
+func decorateUrl(url string, context Context) string {
+	url = withSymbols(url, strings.Split(context.Symbols, ","))
+	url = withBase(url, context.Base)
+	return url
+}
+
+type Context struct {
+	Endpoint Endpoint
+	Symbols  string
+	Base     string
 }
